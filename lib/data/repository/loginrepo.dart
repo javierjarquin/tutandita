@@ -6,7 +6,7 @@ import 'package:tutandita/domain/entities/user.dart';
 import 'package:tutandita/domain/usecases/login.dart';
 
 class Loginrepo implements LoginUseCase {
-  final String apiUrl = "http://localhost:8081/users/login";
+  final String apiUrl = '/api/users/login';
   final String logFilePath =
       "/home/javier/Documentos/workbench/tutandita/logs.txt";
 
