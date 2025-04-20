@@ -1,44 +1,27 @@
+// lib/presentation/screen/homescreen.dart
 import 'package:flutter/material.dart';
+import 'package:tutandita/data/repository/tandarepo.dart';
+import 'package:tutandita/data/model/tandamodel.dart';
 import 'package:tutandita/presentation/screen/addtanda.dart';
-import 'package:tutandita/presentation/screen/edittanda.dart'; // Importa la pantalla de edición
+import 'package:tutandita/presentation/screen/edittanda.dart';
 
 class Homescreen extends StatelessWidget {
-  Future<List<Map<String, String>>> _fetchTandas() async {
-    // Hardcoded examples
-    await Future.delayed(Duration(seconds: 1)); // Simulate network delay
-    return [
-      {
-        'title': 'Tanda 1',
-        'usermanager': 'Juan Pérez',
-        'participants': '10',
-        'amount': '5000',
-        'period': 'Mensual',
-      },
-      {
-        'title': 'Tanda 2',
-        'usermanager': 'María López',
-        'participants': '8',
-        'amount': '3000',
-        'period': 'Quincenal',
-      },
-      {
-        'title': 'Tanda 3',
-        'usermanager': 'Carlos García',
-        'participants': '12',
-        'amount': '7000',
-        'period': 'Semanal',
-      },
-    ];
+  final TandaRepository tandaRepository =
+      TandaRepository(); // Instancia del repositorio
+
+  Future<List<Tandamodel>> _fetchTandas() async {
+    return await tandaRepository
+        .fetchTandas(); // Usamos el repositorio para obtener las tandas
   }
 
   void _addtanda(BuildContext context) async {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => addtanda()),
+      MaterialPageRoute(builder: (context) => AddTanda()),
     );
   }
 
-  void _editTanda(BuildContext context, Map<String, String> tanda) {
+  void _editTanda(BuildContext context, Tandamodel tanda) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => EditTandaScreen(tanda: tanda)),
@@ -48,7 +31,7 @@ class Homescreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<Map<String, String>>>(
+      body: FutureBuilder<List<Tandamodel>>(
         future: _fetchTandas(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -108,7 +91,7 @@ class Homescreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCard(BuildContext context, Map<String, String> tanda) {
+  Widget _buildCard(BuildContext context, Tandamodel tanda) {
     return GestureDetector(
       onTap: () => _editTanda(context, tanda),
       child: Card(
@@ -123,7 +106,7 @@ class Homescreen extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    tanda['title']!,
+                    tanda.alias,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -140,12 +123,12 @@ class Homescreen extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    'Organizador: ${tanda['usermanager']}',
+                    'Organizador: ${tanda.usercreation}',
                     style: TextStyle(color: Colors.grey[400]),
                   ),
                   Spacer(),
                   Text(
-                    'Participantes: ${tanda['participants']}',
+                    'Participantes: ${tanda.members}',
                     style: TextStyle(color: Colors.grey[400]),
                   ),
                 ],
@@ -154,12 +137,12 @@ class Homescreen extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    'Monto: ${tanda['amount']}',
+                    'Monto: ${tanda.poolAmount}',
                     style: TextStyle(color: Colors.grey[400]),
                   ),
                   Spacer(),
                   Text(
-                    'Periodo: ${tanda['period']}',
+                    'Periodo: ${tanda.period}',
                     style: TextStyle(color: Colors.grey[400]),
                   ),
                 ],

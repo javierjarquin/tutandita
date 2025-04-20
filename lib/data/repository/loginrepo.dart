@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer' as developer;
 import 'package:tutandita/domain/entities/user.dart';
 import 'package:tutandita/domain/usecases/login.dart';
 
 class Loginrepo implements LoginUseCase {
-  final String apiUrl = '/api/users/login';
+  // final String apiUrl = '/api/users/login';
+  final String apiUrl =
+      'http://localhost:8081/users/login'; // Cambia por la URL de tu API
   final String logFilePath =
       "/home/javier/Documentos/workbench/tutandita/logs.txt";
 
@@ -28,6 +31,10 @@ class Loginrepo implements LoginUseCase {
 
         // Aquí asumimos que el campo 'id' indica si la autenticación fue exitosa
         if (responseData['id'] != null) {
+          final ses = await SharedPreferences.getInstance();
+          await ses.setInt('id', responseData['id']);
+          await ses.setInt('userId', responseData['userId']);
+
           return true; // Login exitoso
         } else {
           return false; // Login fallido, 'id' no presente

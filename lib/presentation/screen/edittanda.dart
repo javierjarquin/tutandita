@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tutandita/presentation/screen/homescreen.dart';
+import 'package:tutandita/data/model/tandamodel.dart';
 
 class EditTandaScreen extends StatefulWidget {
-  final Map<String, String> tanda;
+  final Tandamodel tanda;
   EditTandaScreen({required this.tanda});
 
   @override
@@ -12,13 +13,45 @@ class EditTandaScreen extends StatefulWidget {
 class _EditTandaScreenState extends State<EditTandaScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nombreTandaController = TextEditingController();
-  final _organizadorController = TextEditingController();
+  final _startDateController = TextEditingController();
   final _participantesController = TextEditingController();
   final _montoController = TextEditingController();
-  String? _frecuencia;
+  DateTime? _selectedStartDate;
+
+  String? _frecuencia = 'Semanal'; // Valor por defecto
   bool _isSaving = false;
 
   List<Map<String, String>> _participants = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    final tanda = widget.tanda;
+
+    _nombreTandaController.text = tanda.alias;
+    _montoController.text = tanda.poolAmount.toString();
+    _participantesController.text = tanda.members.toString();
+    _frecuencia =
+        "${tanda.period[0]}${tanda.period[tanda.period.length - 1]}"
+            .toUpperCase();
+
+    // Si ya hay fecha, formatearla en yyyy-MM-dd para el date picker
+    if (tanda.startDate != null) {
+      final date = tanda.startDate;
+      _selectedStartDate = date;
+      _startDateController.text =
+          "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    }
+
+    // Aquí puedes cargar participantes si el modelo los tiene
+    // Por ejemplo:
+    // _participants = tanda.participants.map((p) => {
+    //   'name': p.name,
+    //   'phone': p.phone,
+    //   'unassignedNumber': p.unassignedNumber.toString(),
+    // }).toList();
+  }
 
   Future<void> _savetanda(BuildContext context) async {
     if (!_formKey.currentState!.validate()) {
@@ -184,7 +217,7 @@ class _EditTandaScreenState extends State<EditTandaScreen> {
   @override
   void dispose() {
     _nombreTandaController.dispose();
-    _organizadorController.dispose();
+    _startDateController.dispose();
     _participantesController.dispose();
     _montoController.dispose();
     super.dispose();
@@ -223,18 +256,30 @@ class _EditTandaScreenState extends State<EditTandaScreen> {
                 ),
                 SizedBox(height: 20),
                 TextFormField(
-                  controller: _organizadorController,
-                  decoration: InputDecoration(
-                    labelText: 'Nombre del organizador',
+                  controller: _startDateController,
+                  readOnly: true,
+                  onTap: () async {
+                    final pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+
+                    if (pickedDate != null) {
+                      setState(() {
+                        _selectedStartDate = pickedDate;
+                        _startDateController.text =
+                            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+                      });
+                    }
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Fecha de inicio',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa el nombre del organizador';
-                    }
-                    return null;
-                  },
                 ),
+
                 SizedBox(height: 20),
                 Row(
                   children: [
@@ -298,20 +343,11 @@ class _EditTandaScreenState extends State<EditTandaScreen> {
                   ),
                   value: _frecuencia,
                   items: [
-                    DropdownMenuItem(value: 'Semanal', child: Text('Semanal')),
-                    DropdownMenuItem(
-                      value: 'Quincena',
-                      child: Text('Quincena'),
-                    ),
-                    DropdownMenuItem(value: 'Mensual', child: Text('Mensual')),
-                    DropdownMenuItem(
-                      value: 'Bimestral',
-                      child: Text('Bimestral'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'Trimestral',
-                      child: Text('Trimestral'),
-                    ),
+                    DropdownMenuItem(value: 'SL', child: Text('Semanal')),
+                    DropdownMenuItem(value: 'QL', child: Text('Quincena')),
+                    DropdownMenuItem(value: 'ML', child: Text('Mensual')),
+                    DropdownMenuItem(value: 'BL', child: Text('Bimestral')),
+                    DropdownMenuItem(value: 'TL', child: Text('Trimestral')),
                   ],
                   onChanged: (value) {
                     setState(() {
