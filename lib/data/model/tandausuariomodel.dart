@@ -1,36 +1,46 @@
-class Tandausuariomodel {
+class TandaUsuarioModel {
   final int id;
   final int tandaId;
-  final int memeberId;
+  final int memberId;
+  final String name;
+  final String phone;
   final int numberTicket;
   final DateTime datepay;
   final String status;
 
-  Tandausuariomodel({
+  TandaUsuarioModel({
     required this.id,
     required this.tandaId,
-    required this.memeberId,
+    required this.memberId,
+    required this.name,
+    required this.phone,
     required this.numberTicket,
     required this.datepay,
     required this.status,
   });
-  factory Tandausuariomodel.fromJson(Map<String, dynamic> json) {
-    return Tandausuariomodel(
+
+  factory TandaUsuarioModel.fromJson(Map<String, dynamic> json) {
+    return TandaUsuarioModel(
       id: json['id'],
       tandaId: json['tandaId'],
-      memeberId: json['memeberId'],
+      memberId: json['memberId'],
+      name: json['name'],
+      phone: json['phone'],
       numberTicket: json['numberTicket'],
-      datepay: DateTime.parse(json['datepay']),
+      datepay: DateTime.parse(json['datePay']),
       status: json['status'],
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'tandaId': tandaId,
-      'memeberId': memeberId,
+      'memberId': memberId, // corregido
+      'name': name,
+      'phone': phone,
       'numberTicket': numberTicket,
-      'datepay': datepay.toUtc().toIso8601String(),
+      'datepay': datepay.toIso8601String(),
       'status': status,
     };
   }
